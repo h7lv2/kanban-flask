@@ -1,5 +1,6 @@
 import time
 from flask import Flask, request, jsonify, g
+from flask_cors import CORS
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
 from argon2 import PasswordHasher
@@ -10,6 +11,7 @@ from src.database import get_db, SessionLocal
 from src.models import User, Task, UserTaskAssignment
 
 app = Flask(__name__)
+CORS(app, origins='*')
 app.config['SECRET_KEY'] = 'your-secret-key-here'  # Change this in production
 
 # Password hasher

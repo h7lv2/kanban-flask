@@ -1,4 +1,3 @@
-from flask import Flask
 from src.database import init_db
 from src.routes import app
 
