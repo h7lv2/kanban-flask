@@ -12,3 +12,6 @@ wheels/
 # Assets
 assets/*.db
 assets/avatars/*
+
+# jujutsu 
+jj.exe
