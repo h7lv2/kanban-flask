@@ -5,6 +5,7 @@ import snowflake
 
 from src.database import SessionLocal
 from src.models import User, Task, UserTaskAssignment
+from src.types.task import VALID_PRIORITIES, VALID_COLUMNS, PRIORITY_MEDIUM, COLUMN_TODO
 
 tasks_bp = Blueprint('tasks', __name__)
 
@@ -47,8 +48,8 @@ def create_task():
     if not data:
         return jsonify({'error': 'No data provided'}), 400
     
-    if 'name' not in data:
-        return jsonify({'error': 'Missing required field: name'}), 400
+    if 'title' not in data:
+        return jsonify({'error': 'Missing required field: title'}), 400
     
     db = get_db_session()
     
@@ -56,15 +57,21 @@ def create_task():
         # Generate snowflake ID
         task_id = next(snowflake_gen)
         
+        # Validate priority if provided
+        priority = data.get('priority', PRIORITY_MEDIUM)
+        if priority not in VALID_PRIORITIES:
+            return jsonify({'error': f'Invalid priority. Must be one of: {VALID_PRIORITIES}'}), 400
+        
         # Create task
         task = Task(
             id=task_id,
-            name=data['name'],
-            description=data.get('description'),
+            title=data['title'],  # Changed from 'name' to 'title'
+            description=data.get('description', ''),  # Default to empty string
+            priority=priority,  # Added priority field
             date_created=int(time.time()),
-            date_deadline=data.get('date_deadline'),
+            deadline=data.get('deadline'),  # Changed from 'date_deadline' to 'deadline'
             date_completed=data.get('date_completed'),
-            current_column=data.get('current_column', 'pool')
+            current_column=data.get('current_column', COLUMN_TODO)  # Changed default from 'pool' to 'todo'
         )
         
         db.add(task)
@@ -100,22 +107,26 @@ def update_task(task_id):
     
     try:
         # Update fields if provided
-        if 'name' in data:
-            task.name = data['name']
+        if 'title' in data:  # Changed from 'name' to 'title'
+            task.title = data['title']
         
         if 'description' in data:
             task.description = data['description']
         
-        if 'date_deadline' in data:
-            task.date_deadline = data['date_deadline']
+        if 'priority' in data:  # Added priority field handling
+            if data['priority'] not in VALID_PRIORITIES:
+                return jsonify({'error': f'Invalid priority. Must be one of: {VALID_PRIORITIES}'}), 400
+            task.priority = data['priority']
+        
+        if 'deadline' in data:  # Changed from 'date_deadline' to 'deadline'
+            task.deadline = data['deadline']
         
         if 'date_completed' in data:
             task.date_completed = data['date_completed']
         
         if 'current_column' in data:
-            valid_columns = ['pool', 'in_progress', 'testing', 'done']
-            if data['current_column'] not in valid_columns:
-                return jsonify({'error': f'Invalid column. Must be one of: {valid_columns}'}), 400
+            if data['current_column'] not in VALID_COLUMNS:
+                return jsonify({'error': f'Invalid column. Must be one of: {VALID_COLUMNS}'}), 400
             task.current_column = data['current_column']
             
             # If moving to done, set completion time

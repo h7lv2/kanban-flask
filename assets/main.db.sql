@@ -14,12 +14,13 @@ CREATE TABLE users (
 -- Create tasks table
 CREATE TABLE tasks (
     id INTEGER PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    description TEXT,
+    title VARCHAR(255) NOT NULL,  -- Changed from 'name' to 'title'
+    description TEXT NOT NULL DEFAULT '',  -- Made non-nullable with default
+    priority VARCHAR(10) NOT NULL DEFAULT 'medium' CHECK(priority IN ('low', 'medium', 'high')),  -- Added priority field
+    deadline VARCHAR(10),  -- Changed from date_deadline INTEGER to deadline VARCHAR(10) for YYYY-MM-DD format
     date_created INTEGER NOT NULL,
-    date_deadline INTEGER,
     date_completed INTEGER,
-    current_column VARCHAR(20) NOT NULL DEFAULT 'pool' CHECK(current_column IN ('pool', 'in_progress', 'testing', 'done')),
+    current_column VARCHAR(20) NOT NULL DEFAULT 'todo' CHECK(current_column IN ('todo', 'progress', 'review', 'done')),  -- Updated column names and default
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -36,7 +37,8 @@ CREATE TABLE user_task_assignments (
 
 -- Create indexes for better performance
 CREATE INDEX idx_tasks_column ON tasks(current_column);
-CREATE INDEX idx_tasks_deadline ON tasks(date_deadline);
+CREATE INDEX idx_tasks_priority ON tasks(priority);  -- Added index for priority
+CREATE INDEX idx_tasks_deadline ON tasks(deadline);  -- Changed from date_deadline to deadline
 CREATE INDEX idx_tasks_completed ON tasks(date_completed);
 CREATE INDEX idx_assignments_user ON user_task_assignments(user_id);
 CREATE INDEX idx_assignments_task ON user_task_assignments(task_id);
@@ -51,13 +53,13 @@ INSERT INTO users (id, username, password, display_name, profile_picture, is_adm
 
 -- Sample tasks
 -- Note: Tasks are created with current date and time
--- Current columns are set to 'pool', 'in_progress', 'testing', or 'done'
+-- Current columns are set to 'todo', 'progress', 'review', or 'done'
 -- This is just sample data and should be replaced with real task data in production
-INSERT INTO tasks (id, name, description, date_created, current_column) VALUES
-(1, 'Setup Database', 'Create SQLite database with proper schema', strftime('%s', 'now'), 'done'),
-(2, 'Implement User Authentication', 'Add login and registration functionality', strftime('%s', 'now'), 'in_progress'),
-(3, 'Create Task Management UI', 'Build the kanban board interface', strftime('%s', 'now'), 'pool'),
-(4, 'Add Task Assignment Feature', 'Allow assigning tasks to users', strftime('%s', 'now'), 'pool');
+INSERT INTO tasks (id, title, description, priority, deadline, date_created, current_column) VALUES
+(1, 'Setup Database', 'Create SQLite database with proper schema', 'high', '2025-07-15', strftime('%s', 'now'), 'done'),
+(2, 'Implement User Authentication', 'Add login and registration functionality', 'high', '2025-07-12', strftime('%s', 'now'), 'progress'),
+(3, 'Create Task Management UI', 'Build the kanban board interface', 'medium', NULL, strftime('%s', 'now'), 'todo'),
+(4, 'Add Task Assignment Feature', 'Allow assigning tasks to users', 'low', NULL, strftime('%s', 'now'), 'todo');
 
 -- Sample task assignments
 -- Note: This is just sample data and should be replaced with real task assignments in production

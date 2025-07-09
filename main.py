@@ -1,19 +1,15 @@
 from src.database import init_db
-from src.routes import app
+from src.routes import create_app
 
-def create_app():
+def main():
     """Initialize the db and configure app."""
     # Initialize database
     init_db()
     
-    # Configure the app
+    # Create and configure the app
+    app = create_app()
     app.config['DEBUG'] = True
     app.config['TESTING'] = False
-    
-    return app
-
-def main():
-    app = create_app()
     
     # Run the application
     app.run(host='0.0.0.0', port=5000, debug=True)

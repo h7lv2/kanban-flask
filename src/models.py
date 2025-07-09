@@ -45,12 +45,13 @@ class Task(Base):
     __tablename__ = 'tasks'
     
     id = Column(Integer, primary_key=True)
-    name = Column(String(255), nullable=False)
-    description = Column(Text)
+    title = Column(String(255), nullable=False)  # Changed from 'name' to 'title'
+    description = Column(Text, nullable=False, default='')  # Made non-nullable with default
+    priority = Column(String(10), nullable=False, default='medium')  # Added priority field: 'low', 'medium', 'high'
+    deadline = Column(String(10))  # Changed to string format (YYYY-MM-DD) to match Vue
     date_created = Column(Integer, nullable=False)  # Unix timestamp
-    date_deadline = Column(Integer)  # Unix timestamp
     date_completed = Column(Integer)  # Unix timestamp
-    current_column = Column(String(20), nullable=False, default='pool')
+    current_column = Column(String(20), nullable=False, default='todo')  # Changed default from 'pool' to 'todo'
     created_at = Column(DateTime, nullable=False, default=func.now())
     
     # Relationship to users through bridge table
@@ -60,10 +61,11 @@ class Task(Base):
         """Convert the task to a dictionary."""
         return {
             'id': self.id,
-            'name': self.name,
+            'title': self.title,  # Changed from 'name' to 'title'
             'description': self.description,
+            'priority': self.priority,  # Added priority field
+            'deadline': self.deadline,  # Changed from 'date_deadline' to 'deadline'
             'date_created': self.date_created,
-            'date_deadline': self.date_deadline,
             'date_completed': self.date_completed,
             'current_column': self.current_column,
             'created_at': self.created_at.isoformat() if self.created_at else None,
@@ -71,7 +73,7 @@ class Task(Base):
         }
     
     def __repr__(self):
-        return f"<Task(id={self.id}, name='{self.name}', column='{self.current_column}')>"
+        return f"<Task(id={self.id}, title='{self.title}', column='{self.current_column}')>"
 
 
 class UserTaskAssignment(Base):
