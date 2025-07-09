@@ -32,9 +32,14 @@ def get_tasks():
     tasks = query.all()
     return jsonify([task.to_dict() for task in tasks])
 
-@tasks_bp.route('/api/tasks/<int:task_id>', methods=['GET'])
+@tasks_bp.route('/api/tasks/<task_id>', methods=['GET'])
 def get_task(task_id):
     """Get a specific task by ID."""
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid task ID'}), 400
+    
     db = get_db_session()
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
@@ -93,9 +98,14 @@ def create_task():
         db.rollback()
         return jsonify({'error': str(e)}), 500
 
-@tasks_bp.route('/api/tasks/<int:task_id>', methods=['PUT'])
+@tasks_bp.route('/api/tasks/<task_id>', methods=['PUT'])
 def update_task(task_id):
     """Update an existing task."""
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid task ID'}), 400
+    
     data = request.get_json()
     if not data:
         return jsonify({'error': 'No data provided'}), 400
@@ -140,9 +150,14 @@ def update_task(task_id):
         db.rollback()
         return jsonify({'error': str(e)}), 500
 
-@tasks_bp.route('/api/tasks/<int:task_id>', methods=['DELETE'])
+@tasks_bp.route('/api/tasks/<task_id>', methods=['DELETE'])
 def delete_task(task_id):
     """Delete a task."""
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid task ID'}), 400
+    
     db = get_db_session()
     task = db.query(Task).filter(Task.id == task_id).first()
     if not task:
@@ -157,9 +172,14 @@ def delete_task(task_id):
         return jsonify({'error': str(e)}), 500
 
 # Task assignment routes
-@tasks_bp.route('/api/tasks/<int:task_id>/assign', methods=['POST'])
+@tasks_bp.route('/api/tasks/<task_id>/assign', methods=['POST'])
 def assign_task(task_id):
     """Assign a user to a task."""
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid task ID'}), 400
+    
     data = request.get_json()
     if not data or 'user_id' not in data:
         return jsonify({'error': 'Missing user_id'}), 400
@@ -194,9 +214,14 @@ def assign_task(task_id):
         db.rollback()
         return jsonify({'error': str(e)}), 500
 
-@tasks_bp.route('/api/tasks/<int:task_id>/unassign', methods=['POST'])
+@tasks_bp.route('/api/tasks/<task_id>/unassign', methods=['POST'])
 def unassign_task(task_id):
     """Unassign a user from a task."""
+    try:
+        task_id = int(task_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid task ID'}), 400
+    
     data = request.get_json()
     if not data or 'user_id' not in data:
         return jsonify({'error': 'Missing user_id'}), 400

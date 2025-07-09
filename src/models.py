@@ -26,14 +26,14 @@ class User(Base):
     def to_dict(self):
         """Convert the user to a dictionary."""
         return {
-            'id': self.id,
+            'id': str(self.id),  # Convert to string to prevent JS precision loss
             'username': self.username,
             'display_name': self.display_name,
             'profile_picture': self.profile_picture,
             'is_admin': self.is_admin,
             'date_created': self.date_created,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'tasks_assigned': [assignment.task_id for assignment in self.task_assignments]
+            'tasks_assigned': [str(assignment.task_id) for assignment in self.task_assignments]  # Convert to strings
         }
     
     def __repr__(self):
@@ -60,7 +60,7 @@ class Task(Base):
     def to_dict(self):
         """Convert the task to a dictionary."""
         return {
-            'id': self.id,
+            'id': str(self.id),  # Convert large IDs to strings to prevent JS precision loss
             'title': self.title,  # Changed from 'name' to 'title'
             'description': self.description,
             'priority': self.priority,  # Added priority field
@@ -69,7 +69,7 @@ class Task(Base):
             'date_completed': self.date_completed,
             'current_column': self.current_column,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'assignees': [assignment.user_id for assignment in self.user_assignments]
+            'assignees': [str(assignment.user_id) for assignment in self.user_assignments]  # Convert to strings
         }
     
     def __repr__(self):
@@ -96,8 +96,8 @@ class UserTaskAssignment(Base):
         """Convert the assignment to a dictionary."""
         return {
             'id': self.id,
-            'user_id': self.user_id,
-            'task_id': self.task_id,
+            'user_id': str(self.user_id),
+            'task_id': str(self.task_id),
             'assigned_at': self.assigned_at.isoformat() if self.assigned_at else None
         }
     
